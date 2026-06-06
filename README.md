@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔎 GEO Shang
+# GEO Shang
 
 ### Generative Engine Optimization — get your site **cited by AI**, not just ranked by Google
 
