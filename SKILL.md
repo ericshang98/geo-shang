@@ -144,12 +144,17 @@ Write `geo-shang.html` in the project root. HTML format so the user can open in 
 - 跨平台信息一致性：各处对品牌的描述是否和确认定位一致（不一致 = AI 不敢引）
 - 反向链接 / 域名权威概况
 
+**⑧ 引用可观测性（度量闭环，CF 站点）— 优化完到底有没有被 AI 引用？**
+- 有没有插中间层把 AI 爬虫命中落进 SQL（Cloudflare AI Audit / Pages `_middleware.ts` + D1）？没埋 → 一条待办工单
+- 有没有埋金丝雀标记、做过回流探测（确证哪页被引用）？
+- 详见下文《AI 引用可观测性：Cloudflare 中间层 → SQL》一节
+
 **审计区落盘格式** — 至少包含：
 1. **🔴 虚假声明必删表**（与已验证事实矛盾的对外声明，最高优先级）：`声称 | 真实情况 | 位置`
-2. **优先级工单表**（覆盖以上 7 维的所有发现）：
+2. **优先级工单表**（覆盖以上 8 维的所有发现）：
 
 ```
-| # | 问题 | 维度① 抓取 / ② 入口 / ③ Schema / ④ Meta / ⑤ 内容 / ⑥ 搜索 / ⑦ 权威 | 层级（技术>内容>权威） | 影响 | 成本 | 状态（待办/进行/已修） | 行动 |
+| # | 问题 | 维度① 抓取 / ② 入口 / ③ Schema / ④ Meta / ⑤ 内容 / ⑥ 搜索 / ⑦ 权威 / ⑧ 可观测 | 层级（技术>内容>权威） | 影响 | 成本 | 状态（待办/进行/已修） | 行动 |
 |---|------|------|------|------|------|------|------|
 ```
 
@@ -226,6 +231,120 @@ Write `geo-shang.html` in the project root. HTML format so the user can open in 
 
 **Commit 代码：**
 commit message 写清楚 GEO 变更内容。
+
+---
+
+## AI 引用可观测性：Cloudflare 中间层 → SQL（可选，强烈建议）
+
+GEO 最难的是闭环——优化完，**到底有没有被 AI 引用？** 7 维审计里的"AI 实搜"是手动抽查，样本小、不持续。如果站点在 **Cloudflare**（尤其 Pages），可以插一个中间层把"AI 来抓我"这件事**全量、持续、落进 SQL（D1）**，把度量从"偶尔人肉问一次"变成"看板随时查"。
+
+> **先分清两半，可观测性不同：**
+> - **A. 爬取（HTTP 层可直接观测）** — AI 爬虫来抓你的页面，就是带特征 UA 的请求，看得一清二楚。
+> - **B. 模型为什么"选中"你（HTTP 层看不到）** — 排序决策在模型内部。要确证"这页为什么被引用"，靠**金丝雀标记**（见下）。
+
+### A. 全量爬取日志（落 D1，纯 SQL）
+
+三档，从省力到定制：
+
+1. **Cloudflare AI Audit / AI Crawl Control**（控制台开关，0 代码）：直接看 GPTBot / ClaudeBot / PerplexityBot / OAI-SearchBot 等爬没爬、爬哪些页、多频。**第一步永远先开这个**，5 分钟，立刻知道部署后爬虫到没到。
+2. **Pages 中间层 `functions/_middleware.ts`**（可定制、落 SQL，本节重点）：拦每个请求，识别 AI-bot UA，写进 **D1**（SQLite，纯 SQL 查询）。
+3. **Logpush → R2/BigQuery** 全量日志按 UA 过滤（站点不在 Pages、或要接数仓时用）。
+
+**关键：UA 分两类——区分"训练/建索引" vs "答题当下实时抓"。** 后者意味着你**此刻正被当成某个提问的引用源**，是 GEO 命中的最强信号：
+
+| kind | UA | 含义 |
+|---|---|---|
+| `training` | `GPTBot` `ClaudeBot` `PerplexityBot` `CCBot` `Bytespider` `Google-Extended` | 训练 / 建索引 |
+| `realtime` | `OAI-SearchBot` `ChatGPT-User` `Perplexity-User` `anthropic-ai` | **答题实时抓 = 正被引用** |
+
+**D1 表结构（SQL）：**
+
+```sql
+CREATE TABLE IF NOT EXISTS ai_crawl_log (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts        TEXT NOT NULL,           -- ISO 时间
+  bot       TEXT NOT NULL,           -- GPTBot / OAI-SearchBot / ...
+  kind      TEXT NOT NULL,           -- 'training' | 'realtime' | 'other'
+  url       TEXT NOT NULL,           -- 请求路径
+  ua        TEXT NOT NULL,           -- 原始 user-agent
+  verified  INTEGER NOT NULL,        -- 1 = request.cf.verifiedBotCategory 证实
+  country   TEXT,
+  status    INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_ai_bot_ts ON ai_crawl_log(bot, ts);
+CREATE INDEX IF NOT EXISTS idx_ai_url    ON ai_crawl_log(url);
+```
+
+**`functions/_middleware.ts`（骨架）：**
+
+```ts
+const BOTS: Record<string, "training" | "realtime"> = {
+  GPTBot: "training", ClaudeBot: "training", PerplexityBot: "training",
+  CCBot: "training", Bytespider: "training", "Google-Extended": "training",
+  "OAI-SearchBot": "realtime", "ChatGPT-User": "realtime",
+  "Perplexity-User": "realtime", "anthropic-ai": "realtime",
+};
+export const onRequest: PagesFunction<{ DB: D1Database }> = async (ctx) => {
+  const ua = ctx.request.headers.get("user-agent") ?? "";
+  const hit = Object.keys(BOTS).find((b) => ua.includes(b));
+  if (hit) {
+    const u = new URL(ctx.request.url);
+    // 异步写库，绝不阻塞响应
+    ctx.waitUntil(ctx.env.DB.prepare(
+      `INSERT INTO ai_crawl_log (ts,bot,kind,url,ua,verified,country)
+       VALUES (?,?,?,?,?,?,?)`
+    ).bind(
+      new Date().toISOString(), hit, BOTS[hit], u.pathname, ua,
+      ctx.request.cf?.verifiedBotCategory ? 1 : 0,
+      ctx.request.cf?.country ?? null
+    ).run());
+  }
+  return ctx.next();
+};
+```
+
+**看板就是几条 SQL（`wrangler d1 execute <db> --command "..."`）：**
+
+```sql
+-- 近 7 天：哪个 bot 爬了哪些页、几次
+SELECT bot, url, COUNT(*) n FROM ai_crawl_log
+WHERE ts > datetime('now','-7 day') GROUP BY bot, url ORDER BY n DESC;
+
+-- 正被当实时引用源的页（最强 GEO 命中信号）
+SELECT url, COUNT(*) n FROM ai_crawl_log
+WHERE kind='realtime' AND ts > datetime('now','-7 day') GROUP BY url ORDER BY n DESC;
+
+-- 覆盖缺口：sitemap 里有、但 AI 从没爬过的页（需先把 sitemap URL 灌进一张 pages 表）
+SELECT p.url FROM pages p
+LEFT JOIN ai_crawl_log a ON a.url = p.url
+WHERE a.url IS NULL;
+```
+
+### B. 金丝雀标记（确证"这页为什么被引用"）
+
+模型内部排序看不到，但可以**反推**：在每个关键页埋一个唯一的隐形指纹（独特序列号如 `PCL-canary-7F3A`，或一句独特表述），写进 `llms.txt`、SSR 正文、JSON-LD。然后去 Perplexity/ChatGPT 问品牌词，**看回答里有没有冒出这个金丝雀**——出现了，就证明 AI 引用的正是埋了它的那一页。配合 A 段的 `realtime` 抓取日志，链条就闭合了：**用户提问 → 哪页被实时抓（D1 有记录）→ 金丝雀有没有回流到答案**。把每次探测结果也落 SQL：
+
+```sql
+CREATE TABLE IF NOT EXISTS ai_citation_probe (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts TEXT NOT NULL, engine TEXT, query TEXT,
+  canary TEXT,        -- 埋在哪页的指纹
+  cited INTEGER,      -- 答案里有没有回流（1/0）
+  notes TEXT
+);
+```
+
+### 附带一招：给 AI 爬虫发"等价但全渲染"的版本
+
+中间层既然已识别 AI-bot UA，可顺手治 CSR 顽疾——首页是 `use client`、AI 爬虫不跑 JS 拿不到正文时，给 bot 返一份 SSR/结构化等价版本。⚠️ **绝不 cloaking**（给 bot 发与用户**矛盾**的内容，搜索引擎会罚）——只发"内容等价、更适合爬虫"的版本才合规。
+
+### 更省事的替代：SaaS
+
+不想自建就用 **Profound / Peec.ai / llmrefs / Otterly** 这类——定时替你问各家 AI、追踪你被引没引、和竞品做"声量份额"对比。自建（D1+金丝雀）= 数据归你、可 SQL 自由查、零月费；SaaS = 开箱即用、含竞品对比。
+
+### 落地顺序（写进审计区作为工单）
+
+① 控制台开 **AI Audit**（看爬虫到没到，0 代码）→ ② 写 **`_middleware.ts` + D1** 日志，埋**金丝雀**（首页 / llms.txt / 对比页）→ ③ 一周后 SQL 查 `realtime` 命中 + 实搜复核金丝雀回流。把"是否已埋观测层"作为审计区维度 **⑧ 可观测性** 的一条；没埋就是一条待办工单。
 
 ---
 
