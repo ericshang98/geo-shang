@@ -1,0 +1,15 @@
+# ──────────────────────────────────────────────────────────────
+# PRIVATE per-project content — NEVER publish.
+# The positioning document (geo-shang.html / geo-shang-cn.html) holds
+# YOUR brand's confirmed positioning + an internal audit zone (incl. a
+# "false claims to delete" table, founder facts, GEO strategy). It must
+# stay local to each project and must never land in this public repo.
+# ──────────────────────────────────────────────────────────────
+geo-shang.html
+geo-shang.md
+geo-shang-*.html
+geo-shang-*.md
+
+# OS / editor noise
+.DS_Store
+*.swp
