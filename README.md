@@ -1,129 +1,157 @@
+<a name="readme-top"></a>
+
 <div align="center">
 
-# GEO Shang
+<h1>GEO Shang</h1>
 
-### Generative Engine Optimization — get your site **cited by AI**, not just ranked by Google
+<p>
+  <b>Generative Engine Optimization</b><br>
+  Get your site <b>cited by AI</b> — not just ranked by Google.
+</p>
+
+[![MIT License][license-shield]][license-url]
+[![Agent Skill][skill-shield]][skill-url]
+[![Claude Code][claude-shield]][claude-url]
+[![PRs Welcome][prs-shield]][prs-url]
+
+<p>
+  <a href="./SKILL.md"><b>Explore the skill »</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/ericshang98/geo-shang/issues">Report Bug</a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/ericshang98/geo-shang/issues">Request Feature</a>
+</p>
 
 <br>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-2563eb.svg?style=flat-square)](./LICENSE)
-[![Skill](https://img.shields.io/badge/type-agent%20skill-dc2626?style=flat-square)](./SKILL.md)
-[![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-8b5cf6?style=flat-square)](https://claude.com/claude-code)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-16a34a?style=flat-square)](https://github.com/ericshang98/geo-shang/pulls)
-
-<br>
-
-> **Traditional SEO optimizes for _humans clicking a link_.**
-> **GEO optimizes for _models quoting you_.**
-> The audience changed — so the method changes with it.
+<i>Traditional SEO optimizes for humans clicking a link.<br>
+GEO optimizes for models quoting you.<br>
+The audience changed — so the method changes with it.</i>
 
 </div>
 
 <br>
 
-```
-定位锁真相  →  两区分死活  →  为 AI 入口铺事实  →  可引用且诚实  →  技术内容权威按序攻坚  →  多源共识封口
-```
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary><b>Table of Contents</b></summary>
+  <ol>
+    <li><a href="#about">About</a></li>
+    <li><a href="#seo-vs-geo">SEO vs. GEO</a></li>
+    <li><a href="#core-idea--核心思想">Core idea / 核心思想</a></li>
+    <li><a href="#the-7-dimension-audit">The 7-dimension audit</a></li>
+    <li><a href="#measuring-citations-cloudflare--sql">Measuring citations (Cloudflare → SQL)</a></li>
+    <li><a href="#research-foundation">Research foundation</a></li>
+    <li><a href="#getting-started">Getting started</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#privacy">Privacy</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+<br>
+
+<!-- ABOUT -->
+## About
+
+**GEO Shang** is a single-file [agent skill](./SKILL.md) for **Claude Code** that optimizes a website to be **cited by AI search engines** — Perplexity, ChatGPT, Google AI Overview, Gemini.
+
+It doesn't chase keywords. It starts from a founder-confirmed **positioning document**, runs an exhaustive **8-dimension audit**, fixes the site in the right order (technical → content → authority), and closes the loop by **measuring whether AI actually cites you**.
 
 > **一句话内核：** 先让创始人锁定「我是谁、想被怎么引用」，再把这个唯一真相，**诚实、可引用地**，铺满 AI 引擎能读到的每一个入口。
 
-<br>
+```
+定位锁真相 → 两区分死活 → 为 AI 入口铺事实 → 可引用且诚实 → 技术内容权威按序攻坚 → 多源共识封口
+```
 
-## 🆚 SEO vs. GEO
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-| | Traditional SEO | **GEO Shang** |
-|---|---|---|
+<!-- SEO VS GEO -->
+## SEO vs. GEO
+
+|  | Traditional SEO | **GEO Shang** |
+| --- | --- | --- |
 | **Audience** | A human scanning a results page | An LLM constructing an answer |
 | **Goal** | Rank #1, win the click | Be the source the model **quotes** |
 | **Wins on** | Backlinks, keywords, page speed | Citable facts, `llms.txt`, JSON-LD, multi-source consensus |
-| **Fatal flaw it kills** | Thin content | **Split narrative** (homepage ≠ schema ≠ `llms.txt`) |
-| **Unit of success** | A ranking | A citation |
+| **Kills** | Thin content | **Split narrative** (homepage ≠ schema ≠ `llms.txt`) |
+| **Unit of success** | A ranking | A **citation** |
 
-<br>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🧭 Core idea / 核心思想
+<!-- CORE IDEA -->
+## Core idea / 核心思想
 
 Five pillars hold the whole method up.
 
-<table>
-<tr>
-<td width="40"><h3>1️⃣</h3></td>
-<td>
-<b>Positioning first — founder-confirmed is the single source of truth.</b><br>
-No code changes until there's a positioning document the founder approved. Every line of copy, schema, and <code>llms.txt</code> aligns to it. This kills the most common disease: a <b>split narrative</b> — homepage says A, JSON-LD says B, <code>llms.txt</code> says C → the AI ingests three contradictory stories and cites none.
-</td>
-</tr>
-<tr>
-<td><h3>2️⃣</h3></td>
-<td>
-<b>Two zones — marketing source-of-truth vs. a living worklog.</b><br>
-One document, two lifecycles, one hard divider:<br>
-&nbsp;&nbsp;✅ <b>Confirmed zone</b> — the stable marketing single-source-of-truth; approved = use it directly.<br>
-&nbsp;&nbsp;⚠️ <b>Audit zone</b> — a temporary, continuously-updated GEO worklog of "what the site still lacks vs. positioning"; items are deleted as fixed.<br>
-Marketing content and open bugs <b>never mix</b>.
-</td>
-</tr>
-<tr>
-<td><h3>3️⃣</h3></td>
-<td>
-<b>Build for how AI <i>reads</i>, not just how Google <i>ranks</i>.</b><br>
-Weight lands where AI actually ingests: can the crawler even get the content (<b>most AI crawlers don't run JavaScript</b> — CSR content is invisible), the LLM-facing <code>llms.txt</code>, and structured <code>JSON-LD</code>. What the AI really reads is the <b>server-rendered schema</b>, not the homepage copy you think it reads — so fixes hit the <i>source</i> of the attribution chain.
-</td>
-</tr>
-<tr>
-<td><h3>4️⃣</h3></td>
-<td>
-<b>Citable &gt; flashy. Concrete &gt; vague. Facts &gt; slogans. Honesty is a hard constraint.</b><br>
-AI quotes facts, not taglines. "$129, clip on, dispatch in 3 seconds" gets cited; "affordable AI wearable" doesn't. Answer in the first 100 words; use real numbers, quotes, sources.<br>
-And honesty is <b>both ethics and strategy</b>: AI cross-checks sources, so false claims collapse — so <b>never fabricate</b>, and the <b>same truth-bar applies to what you WRITE as to what you DELETE</b> (don't scrub an old false claim only to write a new aspirational one).
-</td>
-</tr>
-<tr>
-<td><h3>5️⃣</h3></td>
-<td>
-<b>Fix in order; authority is won by consensus → Technical &gt; Content &gt; Authority.</b><br>
-First make the crawler get the right content (robots / render / sitemap / schema), then make content citable, then the authority layer — <b>AI only cites you once it sees a consistent story across multiple independent sources</b>. Off-site consensus (reviews, YouTube, Product Hunt, Wikipedia) is the real moat, and usually the ceiling you can't reach by editing your own site alone.
-</td>
-</tr>
-</table>
+**1 · Positioning first — founder-confirmed is the single source of truth.**
+No code changes until there's a positioning document the founder approved. Every line of copy, schema, and `llms.txt` aligns to it. This kills the most common disease — a **split narrative**: homepage says A, JSON-LD says B, `llms.txt` says C, and the AI cites none of them.
 
-Two principles run throughout: **exhaustive + parallel** (all 7 dimensions, page-by-page, fanned out across subagents) and **living + recurring** (freshness is a hard metric — a cliff at ~3 months; the audit zone refreshes every run).
+**2 · Two zones — marketing truth vs. a living worklog.**
+One document, two lifecycles, one hard divider. The **confirmed zone** is the stable marketing single-source-of-truth; the **audit zone** is a temporary, continuously-updated GEO worklog of what the site still lacks. Marketing content and open bugs never mix.
 
-<br>
+**3 · Build for how AI _reads_, not just how Google _ranks_.**
+Most AI crawlers don't run JavaScript, so CSR content is invisible to them. What the AI actually reads is the **server-rendered schema and `llms.txt`** — not the homepage copy you think it reads. So fixes hit the *source* of the attribution chain.
 
-## 🔬 The 7-dimension audit
+**4 · Citable > flashy. Concrete > vague. Facts > slogans. Honesty is a hard constraint.**
+AI quotes facts, not taglines. "$129, clip on, dispatch in 3 seconds" gets cited; "affordable AI wearable" doesn't. And the **same truth-bar applies to what you write as to what you delete** — never scrub an old false claim only to write a new aspirational one.
+
+**5 · Fix in order; authority is won by consensus → Technical > Content > Authority.**
+First make the crawler get the right content, then make it citable, then build off-site consensus — because **AI only cites you once it sees a consistent story across multiple independent sources**. That consensus (reviews, YouTube, Product Hunt, Wikipedia) is the real moat.
+
+<sub>Two principles run throughout: **exhaustive + parallel** (all dimensions, page-by-page, fanned across subagents) and **living + recurring** (freshness is a hard metric — a cliff at ~3 months).</sub>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- AUDIT -->
+## The 7-dimension audit
 
 Every run is an exhaustive sweep — each finding written as **`current → gap → action`**.
 
-| # | Dimension | What it checks |
-|:-:|---|---|
-| ① | **Crawlability** | per-UA `robots.txt` for AI crawlers · Cloudflare/WAF blocks · SSR vs CSR (AI crawlers don't run JS) · redirects/canonical · Core Web Vitals |
+| # | Dimension | Checks |
+| :-: | --- | --- |
+| ① | **Crawlability** | per-UA `robots.txt` · Cloudflare/WAF blocks · SSR vs CSR · redirects/canonical · Core Web Vitals |
 | ② | **AI entry files** | `llms.txt` / `llms-full.txt` · `sitemap.xml` coverage & freshness |
-| ③ | **Structured data** | Organization / Product / Person / FAQPage / Article / Breadcrumb / AggregateRating — fields must match the confirmed positioning |
+| ③ | **Structured data** | Organization / Product / Person / FAQPage / Article / Breadcrumb — fields must match positioning |
 | ④ | **Meta** | per-page title · description · canonical · OG · Twitter · hreflang |
-| ⑤ | **Content citability** | first-100-words answer · top-30% facts · Quotation/Statistics/Cite-Sources · paragraph length · list ratio · heading hierarchy · **false-claim detection** |
-| ⑥ | **Live search** | brand terms (+ name-collision pollution) · category terms · competitor comparisons · real AI-engine citation tests |
-| ⑦ | **Off-site authority** | reviews · listicles · Product Hunt / Reddit / HN / **YouTube** · G2 / Trustpilot · Wikipedia / knowledge graph · cross-platform consistency |
+| ⑤ | **Content citability** | first-100-words answer · top-30% facts · Quotation/Statistics/Cite-Sources · structure · **false-claim detection** |
+| ⑥ | **Live search** | brand terms (+ name collision) · category terms · competitor comparisons · real AI-engine citation tests |
+| ⑦ | **Off-site authority** | reviews · Product Hunt / Reddit / HN / **YouTube** · G2 / Trustpilot · Wikipedia · cross-platform consistency |
+| ⑧ | **Observability** | is an AI-crawler logging layer + canary tokens in place? (see below) |
 
-<br>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 📊 Research foundation
+<!-- OBSERVABILITY -->
+## Measuring citations (Cloudflare → SQL)
+
+GEO's hardest question: *after optimizing, are we actually being cited?* If the site is on **Cloudflare**, the whole loop can live in **SQL**.
+
+- **Crawl logging** — a Pages `functions/_middleware.ts` detects AI-bot user-agents and writes each hit into **D1 (SQLite)**. Classify the UA: `training` (GPTBot, ClaudeBot, PerplexityBot…) vs **`realtime`** (OAI-SearchBot, ChatGPT-User, Perplexity-User…) — a realtime hit means **you're being used as a citation source right now**.
+- **Canary tokens** — embed a unique fingerprint per key page (in `llms.txt`, SSR body, JSON-LD). Ask Perplexity/ChatGPT your brand term and watch for the canary in the answer — proof of *which page* got cited. Probe results go into SQL too.
+- **Dashboard = a few SQL queries** — "which bot read which page", "which pages are realtime-cited", "which pages AI has never crawled".
+
+> The skill ships the D1 schema, the `_middleware.ts` skeleton, and the dashboard queries. See [`SKILL.md`](./SKILL.md).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- RESEARCH -->
+## Research foundation
 
 The thresholds aren't vibes — they're grounded in published research.
 
 | Source | Key finding |
-|---|---|
-| **Princeton GEO** (KDD 2024) | Most effective: Quotation **+41%**, Statistics **+33%**, Cite Sources **+30%**. Keyword stuffing ≈ useless for AI search. |
-| **Structural citation research** (2026) | Content structure ≈ **45%** of the signal · **44.2%** of citations come from the top 30% of a page · **90%** of high-citation pages answer in the first 100 words · lists/tables extract **43%** more accurately than prose. |
-| **Platform data** (2026) | Schema → **2.5×** citation odds · YouTube ↔ AI-visibility correlation **0.737** (highest) · G2/Trustpilot → **3×** odds · 3 months stale = citation cliff. |
+| --- | --- |
+| **Princeton GEO** (KDD 2024) | Quotation **+41%**, Statistics **+33%**, Cite Sources **+30%**. Keyword stuffing ≈ useless. |
+| **Structural citation research** (2026) | Structure ≈ **45%** of the signal · **44.2%** of citations from the top 30% · **90%** answer in the first 100 words · lists/tables **+43%** extraction accuracy. |
+| **Platform data** (2026) | Schema → **2.5×** citation odds · YouTube ↔ AI-visibility correlation **0.737** · G2/Trustpilot → **3×** · 3 months stale = citation cliff. |
 
-<sub>Full references in <a href="./SKILL.md"><code>SKILL.md</code></a>.</sub>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<br>
+<!-- GETTING STARTED -->
+## Getting started
 
-## 🚀 Install
-
-A single-file agent skill (`SKILL.md`). Drop it where your agent looks for skills.
+A single-file skill (`SKILL.md`). Drop it where your agent looks for skills.
 
 ```bash
 # Claude Code (and compatible agents)
@@ -133,31 +161,60 @@ git clone https://github.com/ericshang98/geo-shang.git ~/.claude/skills/geo-shan
 npx skills add github:ericshang98/geo-shang
 ```
 
-Then invoke it:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- USAGE -->
+## Usage
 
 ```
 /geo-shang
 ```
 
-- **First run** (no positioning doc found) → it researches your project and drafts a `geo-shang.html` for you to review and confirm.
-- **Later runs** → it reads the doc, refreshes the audit zone, and optimizes — **technical first**.
+- **First run** (no positioning doc) → it researches your project and drafts a `geo-shang.html` for you to review and confirm.
+- **Later runs** → it reads the doc, refreshes the audit zone, and optimizes — technical first.
 
-<br>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🔒 Privacy
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Two-zone positioning document model
+- [x] Exhaustive 8-dimension audit
+- [x] Research-grounded citability thresholds
+- [x] Cloudflare → D1 citation observability + canary tokens
+- [ ] Reusable `_middleware.ts` + D1 starter kit as a drop-in template
+- [ ] Optional integrations for keyword-volume APIs (Ahrefs / SEMrush)
+- [ ] Non-Cloudflare observability recipes (Vercel / Netlify / nginx)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- PRIVACY -->
+## Privacy
 
 > The positioning document this skill produces (`geo-shang.html` / `geo-shang-cn.html`) is **your private, per-project content** — confirmed positioning **plus an internal audit zone** (a "false claims to delete" table, founder facts, GEO strategy).
 >
-> It belongs in *your* project, **never** in this skill repo. The bundled [`.gitignore`](./.gitignore) excludes `geo-shang*.html` / `geo-shang*.md` as a safeguard. Keep those docs out of any repo that could go public.
+> It belongs in *your* project, **never** in this repo. The bundled [`.gitignore`](./.gitignore) excludes `geo-shang*.html` / `geo-shang*.md` as a safeguard. Keep those docs out of any repo that could go public.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See [`LICENSE`](./LICENSE).
 
 <br>
 
----
-
 <div align="center">
-
-**MIT** © 2026 Eric Shang（尚奕勇） · built with [Claude Code](https://claude.com/claude-code)
-
-<sub>If GEO Shang helps your site get cited, a ⭐ is appreciated.</sub>
-
+<sub>© 2026 Eric Shang（尚奕勇） · built with <a href="https://claude.com/claude-code">Claude Code</a><br>
+If GEO Shang helps your site get cited, a ⭐ is appreciated.</sub>
 </div>
+
+<!-- REFERENCE LINKS -->
+[license-shield]: https://img.shields.io/badge/License-MIT-2563eb?style=for-the-badge
+[license-url]: ./LICENSE
+[skill-shield]: https://img.shields.io/badge/Type-Agent_Skill-dc2626?style=for-the-badge
+[skill-url]: ./SKILL.md
+[claude-shield]: https://img.shields.io/badge/Made_for-Claude_Code-8b5cf6?style=for-the-badge
+[claude-url]: https://claude.com/claude-code
+[prs-shield]: https://img.shields.io/badge/PRs-welcome-16a34a?style=for-the-badge
+[prs-url]: https://github.com/ericshang98/geo-shang/pulls
